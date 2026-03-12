@@ -21,12 +21,11 @@ static Elemento *lista = NULL;
 static pthread_mutex_t mutex_lista = PTHREAD_MUTEX_INITIALIZER;
 
 int destroy(void) {
-    // OBS: ¿En qué caso podría dar error?
     pthread_mutex_lock(&mutex_lista);
     Elemento *actual = lista;
     while (actual != NULL) {
         Elemento *siguiente = actual->next;
-        free(actual);   // Liberamos memoria para cada elem eliminado
+        free(actual);
         actual = siguiente;
     }
     lista = NULL;
@@ -35,7 +34,6 @@ int destroy(void) {
 }
 
 int set_value(char *key, char *value1, int N_value2, float *V_value2, struct Paquete value3) {
-    // Se considera también error que el valor N_value2 esté fuera de rango.
     if (N_value2 < 1 || N_value2 > 32) return -1;
     if (key == NULL || value1 == NULL) return -1;
 
@@ -46,13 +44,11 @@ int set_value(char *key, char *value1, int N_value2, float *V_value2, struct Paq
     while (temp != NULL) {
         if (strcmp(temp->key, key) == 0) {
             pthread_mutex_unlock(&mutex_lista);
-            return -1; // Error: clave duplicada
+            return -1; 
         }
-        // Para recorrer los elementos
         temp = temp->next;
     }
 
-    // Alocamos el espacio en memoria para el nuevo elem
     Elemento *nuevo = (Elemento *)malloc(sizeof(Elemento));
     if (nuevo == NULL) {
         pthread_mutex_unlock(&mutex_lista);
@@ -60,11 +56,10 @@ int set_value(char *key, char *value1, int N_value2, float *V_value2, struct Paq
     }
 
     strncpy(nuevo->key, key, 255);
-    nuevo->key[255] = '\0'; // End of string
+    nuevo->key[255] = '\0';
     strncpy(nuevo->value1, value1, 255);
-    nuevo->value1[255] = '\0';  // End of string
+    nuevo->value1[255] = '\0';
     nuevo->N_value2 = N_value2;
-    // Para cadaa valor que estará en el vector
     for (int i = 0; i < N_value2; i++) {  
         nuevo->V_value2[i] = V_value2[i];
     }
@@ -79,8 +74,6 @@ int set_value(char *key, char *value1, int N_value2, float *V_value2, struct Paq
 int get_value(char *key, char *value1, int *N_value2, float *V_value2, struct Paquete *value3) {
     if (key == NULL) return -1;
     
-    //OBS: ¿Se está revisando que V_value2 y value1 espacio reservado para poder almacenar el máximo número 
-    //de elementos posibles 256 en el caso de la cadena de caracteres y 32 en el caso del vector de floats?   
     pthread_mutex_lock(&mutex_lista);
     Elemento *actual = lista;
     while (actual != NULL) {
@@ -97,21 +90,16 @@ int get_value(char *key, char *value1, int *N_value2, float *V_value2, struct Pa
         actual = actual->next;
     }
     pthread_mutex_unlock(&mutex_lista);
-    return -1; // No encontrado (no existe dicho elem)
+    return -1; 
 }
 
 int modify_value(char *key, char *value1, int N_value2, float *V_value2, struct Paquete value3) {
-    // Siendo N_value2 el tamaño del vector, ver si está en el rango
     if (N_value2 < 1 || N_value2 > 32 || key == NULL || value1 == NULL) return -1;
-    // OBS: ¿Se asume que los demás parámetros dados son correctos o también habría que revisar?
-    // Considerando que en todos los casos se indica que "Un error puede ocurrir en este caso por un problema en las comunicaciones."
-    // ¿O se refiere a la sincronización?
+
     pthread_mutex_lock(&mutex_lista);
     Elemento *actual = lista;
     while (actual != NULL) {
-        // Comparación de strings
         if (strcmp(actual->key, key) == 0) {
-            // Copia de string
             strncpy(actual->value1, value1, 255);
             actual->value1[255] = '\0';
             actual->N_value2 = N_value2;
@@ -125,7 +113,7 @@ int modify_value(char *key, char *value1, int N_value2, float *V_value2, struct 
         actual = actual->next;
     }
     pthread_mutex_unlock(&mutex_lista);
-    return -1; // No encontrado
+    return -1; 
 }
 
 int delete_key(char *key) {
@@ -138,11 +126,8 @@ int delete_key(char *key) {
     while (actual != NULL) {
         if (strcmp(actual->key, key) == 0) {
             if (anterior == NULL) {
-                // Esto significa que es el primer elemento
                 lista = actual->next;
             } else {
-                // Esto significa que NO es el primer elemento,
-                // entonces el next del anterior pasa a ser el next del actual, tal que el actual sea borrado
                 anterior->next = actual->next;
             }
             free(actual);
@@ -153,7 +138,7 @@ int delete_key(char *key) {
         actual = actual->next;
     }
     pthread_mutex_unlock(&mutex_lista);
-    return -1; // No encontrado
+    return -1; 
 }
 
 int exist(char *key) {
@@ -162,12 +147,11 @@ int exist(char *key) {
     pthread_mutex_lock(&mutex_lista);
     Elemento *actual = lista;
     while (actual != NULL) {
-        // En caso coincida, devuelvo 1 porque lo encontró
         if (strcmp(actual->key, key) == 0) {
             pthread_mutex_unlock(&mutex_lista);
             return 1;
         }
-        actual = actual->next; // Va recorriendo al siguiente
+        actual = actual->next;
     }
     pthread_mutex_unlock(&mutex_lista);
     return 0;
