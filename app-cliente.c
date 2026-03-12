@@ -16,7 +16,7 @@ void print_test_result(const char* test_name, int result) {
 }
 
 int main() {
-    printf("--- Iniciando Plan de Pruebas (Versión No Distribuida) ---\n\n");
+    printf("--- Inicio de Plan de Pruebas (Versión No Distribuida) ---\n\n");
 
     // Datos de prueba iniciales
     char *key1 = "clave1";
@@ -25,15 +25,15 @@ int main() {
     float v2[] = {1.1, 2.2, 3.3};
     struct Paquete p = {10, 20, 30};
 
-    // 1. Limpiar el servicio
+    // 1. Función destroy(): Limpiar el servicio
     printf("Prueba 1: destroy()\n");
     print_test_result("destroy", destroy());
 
-    // 2. Insertar un elemento válido
+    // 2. Función set_value(): Insertar un elemento válido
     printf("\nPrueba 2: set_value()\n");
     print_test_result("set_value clave1", set_value(key1, val1, n2, v2, p));
 
-    // 3. Comprobar si existe
+    // 3. Función exist(): Comprobar si existe
     printf("\nPrueba 3: exist()\n");
     print_test_result("exist clave1", exist(key1));
     if (exist("no_existe") == 0) {
@@ -42,7 +42,7 @@ int main() {
         printf("[ERROR] exist clave inexistente\n");
     }
 
-    // 4. Recuperar y mostrar los valores
+    // 4. Función get_value(): Recuperar y mostrar los valores
     printf("\nPrueba 4: get_value()\n");
     char res_val1[256];
     int res_n2;
@@ -58,7 +58,7 @@ int main() {
         printf("[ERROR] get_value clave1\n");
     }
 
-    // 5. Modificar un valor existente
+    // 5. Función modify_value(): Modificar un valor existente
     printf("\nPrueba 5: modify_value()\n");
     char *new_val1 = "valor_modificado";
     v2[0] = 9.9; // Cambiamos el primer valor del vector
@@ -73,7 +73,7 @@ int main() {
         printf("[ERROR] Verificación de modificación fallida\n");
     }
 
-    // 6. Pruebas de robustez (Errores controlados)
+    // 6. Función set_value(): Pruebas de robustez (Errores controlados)
     printf("\nPrueba 6: Casos de error\n");
     if (set_value(key1, "duplicado", 1, v2, p) == -1) {
         printf("[OK] Error detectado correctamente: No permite claves duplicadas\n");
@@ -82,7 +82,7 @@ int main() {
         printf("[OK] Error detectado correctamente: N_value2 fuera de rango (>32)\n");
     }
 
-    // 7. Borrar y verificar
+    // 7. Función delete_key(): Borrar y verificar
     printf("\nPrueba 7: delete_key()\n");
     print_test_result("delete_key clave1", delete_key(key1));
     if (exist(key1) == 0) {
@@ -92,6 +92,6 @@ int main() {
         printf("[OK] Error detectado correctamente: No se puede borrar lo que no existe\n");
     }
 
-    printf("\n--- Plan de Pruebas Finalizado ---\n");
+    printf("\n--- Fin de Pruebas (Versión No Distribuida) ---\n");
     return 0;
 }
