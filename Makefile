@@ -1,29 +1,50 @@
 CC = gcc
 CFLAGS = -Wall -Wextra -fPIC -g
 LDFLAGS = -shared
-LDLIBS = -lpthread
+LDLIBS = -lpthread -lrt
 
-# Archivos de salida
-LIB = libclaves.so
-CLIENT = app-cliente
+# Nombres de las bibliotecas
+LIB_LOCAL = libclaves.so
+LIB_PROXY = libproxyclaves.so
 
-# Objetivo por defecto
-all: $(LIB) $(CLIENT)
+# Ejecutables
+SERVER = servidor_mq
+CLIENT_LOCAL = app-cliente
+CLIENT_DIST = app-cliente-dist
 
-# Generar la biblioteca dinámica
-$(LIB): claves.o
+all: $(LIB_LOCAL) $(LIB_PROXY) $(SERVER) $(CLIENT_LOCAL) $(CLIENT_DIST)
+
+# --- BIBLIOTECAS ---
+
+# Biblioteca local (Apartado A)
+$(LIB_LOCAL): claves.o
 	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-# Compilar el objeto de la biblioteca
 claves.o: claves.c claves.h
 	$(CC) $(CFLAGS) -c $<
 
-# Compilar el cliente enlazado
-$(CLIENT): app-cliente.c claves.h $(LIB)
-	$(CC) -Wall -Wextra -g -o $@ $< -L. -lclaves -Wl,-rpath,. $(LDLIBS)
+# Biblioteca Proxy (Apartado B)
+$(LIB_PROXY): proxy-mq.o
+	$(CC) $(LDFLAGS) -o $@ $^ $(LDLIBS)
 
-# Limpiar archivos temporales
+proxy-mq.o: proxy-mq.c claves.h
+	$(CC) $(CFLAGS) -c $<
+
+# --- EJECUTABLES ---
+
+# Servidor (Usa la lógica de libclaves.so)
+$(SERVER): servidor-mq.c $(LIB_LOCAL)
+	$(CC) $(CFLAGS) -o $@ $< -L. -lclaves -Wl,-rpath,. $(LDLIBS)
+
+# Cliente Monolítico (Apartado A)
+$(CLIENT_LOCAL): app-cliente.c $(LIB_LOCAL)
+	$(CC) $(CFLAGS) -o $@ $< -L. -lclaves -Wl,-rpath,. $(LDLIBS)
+
+# Cliente Distribuido (Apartado B)
+$(CLIENT_DIST): app-cliente.c $(LIB_PROXY)
+	$(CC) $(CFLAGS) -o $@ $< -L. -lproxyclaves -Wl,-rpath,. $(LDLIBS)
+
 clean:
-	rm -f *.o *.so $(CLIENT)
+	rm -f *.o *.so $(SERVER) $(CLIENT_LOCAL) $(CLIENT_DIST)
 
 .PHONY: all clean
