@@ -12,7 +12,7 @@
 #define MAX_VAL1 256
 
 /* Nombre de la cola del servidor (debe coincidir con servidor-mq.c) */
-#define SERVER_QUEUE "/servidor_mq_ariana"
+#define SERVER_QUEUE "/servidor_mq_prueba"
 
 /* Códigos de operación (deben coincidir con servidor-mq.c) */
 enum {

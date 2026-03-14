@@ -11,7 +11,7 @@
 #define MAX_VAL1 256
 
 /* Nombre de la cola del servidor (debe coincidir con proxy) */
-#define SERVER_QUEUE "/servidor_mq_ariana"
+#define SERVER_QUEUE "/servidor_mq_prueba"
 
 /* Códigos de operación (deben coincidir con proxy-mq.c) */
 enum {
